@@ -142,64 +142,6 @@ main(int argc, char *argv[])
     }
 }
 
-/*
- * Read and parse a line of the assembly-language file.  Fields are returned
- * in label, opcode, arg0, arg1, arg2 (these strings must have memory already
- * allocated to them).
- *
- * Return values:
- *     0 if reached end of file
- *     1 if successfully read
- *
- * exit(1) if line is too long.
- */
-int
-readAndParse(FILE *inFilePtr, char *label, char *opcode, char *arg0,
-             char *arg1, char *arg2)
-{
-    char line[MAXLINELENGTH];
-    
-    /* delete prior values */
-    label[0] = opcode[0] = arg0[0] = arg1[0] = arg2[0] = '\0';
-    
-    /* read the line from the assembly-language file */
-    if (fgets(line, MAXLINELENGTH, inFilePtr) == NULL) {
-        /* reached end of file */
-        return(0);
-    }
-    
-    /* check for line too long (by looking for a \n) */
-    count_op++;
-    if (strchr(line, '\n') == NULL) {
-        /* line too long */
-        printf("error: line too long\n");
-        exit(1);
-    }
-    
-    /* is there a label? */
-    char *ptr = line;
-    if (sscanf(ptr, "%[^\t\n\r ]", label)) {
-        /* successfully read label; advance pointer over the label */
-        ptr += strlen(label);
-    }
-    
-    /*
-     * Parse the rest of the line.  Would be nice to have real regular
-     * expressions, but scanf will suffice.
-     */
-    sscanf(ptr, "%*[\t\n\r ]%[^\t\n\r ]%*[\t\n\r ]%[^\t\n\r ]%*[\t\n\r ]%[^\t\n\r ]%*[\t\n\r ]%[^\t\n\r ]",
-           opcode, arg0, arg1, arg2);
-    return(1);
-}
-
-int
-isNumber(char *string)
-{
-    /* return 1 if string is a number */
-    int i;
-    return( (sscanf(string, "%d", &i)) == 1);
-}
-
 
 int regtransfer (char* opcode,char* arg0, char* arg1) {
     //new add
@@ -314,42 +256,6 @@ int arg2transfer (struct labelAdd lab[MAXLINELENGTH],int innercounter,
 }//arg2
 
 
-int opcodeTransfer (char *opcode, char *arg2) {
-    
-    char *op[8] = {"add" , "nor" ,"lw","sw","beq","jalr","halt","noop" };
-    
-    if (strcmp(opcode, op[0]) == 0) {
-        return 0;
-    }
-    else if (strcmp(opcode, op[1]) == 0) {
-        return pow(2,22);
-    }
-    
-    else if (strcmp(opcode, op[2]) == 0) {
-        return pow(2, 23);
-    }
-    else if (strcmp(opcode, op[3]) == 0) {
-        return pow(2,23) + pow(2, 22);
-    }
-    else if (strcmp(opcode, op[4]) == 0) {
-        return pow(2,24);
-    }
-    
-    else if (strcmp(opcode, op[5]) == 0) {
-        return pow(2, 24) + pow(2, 22);
-    }
-    
-    else if (strcmp(opcode, op[6]) == 0) {
-        return pow(2, 23) + pow(2, 24);
-    }
-    else if (strcmp(opcode, op[7]) == 0) {
-        return pow(2, 22) + pow(2, 23) + pow(2, 24);
-        
-    }
-    else {
-        return 0;
-    }
-}//opcodetransfer
 
 
 //Duplicate labels
@@ -411,25 +317,7 @@ int errorchecking (char* label,char* opcode, char* arg0,
     
 
     
-    //这上有问题！！！！
-    //duplicates label
-    for (int i = 0; i < innercounter; i++) {
-        for (int j = i + 1; j < innercounter; j++) {
-            if (strcmp(lab[i].labelname, lab[j].labelname) == 0) {
-                printf("duplicates label \n");
-                exit(1);
-            }
-        }
-    }
     
-    //Unrecognized opcodes
-    if (strcmp(opcode, "add") != 0 && strcmp(opcode, "nor") != 0  &&
-        strcmp(opcode, "lw") != 0  && strcmp(opcode, "sw") != 0  &&
-        strcmp(opcode, "beq") != 0  && strcmp(opcode, "jalr") != 0  &&
-        strcmp(opcode, "halt") != 0 && strcmp(opcode, "noop") != 0  &&
-        strcmp(opcode, ".fill") ) {
-        printf("unrecognized opcodes \n");
-        exit(1);
     }
     
     
